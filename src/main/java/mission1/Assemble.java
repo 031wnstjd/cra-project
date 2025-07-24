@@ -7,18 +7,18 @@ public class Assemble {
 
     private static final int CarType_Step = 0;
     private static final int Engine_Step = 1;
-    private static final int BrakeSystem_Step = 2;
-    private static final int SteeringSystem_Step = 3;
+    private static final int Brake_Step = 2;
+    private static final int Steering_Step = 3;
     private static final int RunTest_Step = 4;
 
     private static final int SEDAN = 1, SUV = 2, TRUCK = 3;
-    private static final int GM = 1, TOYOTA = 2, WIA = 3;
+    private static final int GM = 1, TOYOTA = 2, WIA = 3, BROKEN_ENGINE = 4;
     private static final int MANDO = 1, CONTINENTAL = 2, BOSCH_B = 3;
     private static final int BOSCH_S = 1, MOBIS = 2;
 
     private static int currentStep;
 
-    private static int[] selectedTypes = new int[5];
+    private static int[] selected = new int[5];
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -32,36 +32,123 @@ public class Assemble {
             showMenu();
 
             String input = getInput(sc);
-            if (isExit(input)) break;
+            if (isExitCommand(input)) break;
 
             Integer answer = convertToAnswer(input);
             if (answer == null) continue;
 
-            if (currentStep == CarType_Step) executeCarTypeSelection(answer);
-            else if (currentStep == Engine_Step) executeEngineSelection(answer);
-            else if (currentStep == BrakeSystem_Step) executeBrakeSystemSelection(answer);
-            else if (currentStep == SteeringSystem_Step) executeSteeringSystemSelection(answer);
-            else if (currentStep == RunTest_Step) executeRunTestSelection(answer);
+            if (!isValid(answer)) {
+                delay(800);
+                continue;
+            }
+
+            runAssemble(answer);
         }
 
         sc.close();
     }
 
-    private static void showMenu() {
-        if (currentStep == CarType_Step) {
-            showCarTypeMenu();
+    public static void showMenu() {
+        if (currentStep == CarType_Step) showCarTypeMenu();
+        if (currentStep == Engine_Step) showEngineMenu();
+        if (currentStep == Brake_Step) showBrakeMenu();
+        if (currentStep == Steering_Step) showSteeringMenu();
+        if (currentStep == RunTest_Step) showRunTestMenu();
+    }
+
+    public static String getInput(Scanner sc) {
+        System.out.print("INPUT > ");
+        return sc.nextLine().trim();
+    }
+
+    public static boolean isExitCommand(String input) {
+        if (input.equalsIgnoreCase("exit")) {
+            System.out.println("바이바이");
+            return true;
         }
-        if (currentStep == Engine_Step) {
-            showEngineMenu();
+        return false;
+    }
+
+    public static Integer convertToAnswer(String input) {
+        int answer;
+        try {
+            answer = Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            System.out.println("ERROR :: 숫자만 입력 가능");
+            delay(800);
+            return null;
         }
-        if (currentStep == BrakeSystem_Step) {
-            showBrakeMenu();
+        return answer;
+    }
+
+    public static boolean isValid(int answer) {
+        if (isInvalidCarType(answer)) {
+            System.out.println("ERROR :: 차량 타입은 1 ~ 3 범위만 선택 가능");
+            return false;
         }
-        if (currentStep == SteeringSystem_Step) {
-            showSteeringMenu();
+        if (isInvalidEngine(answer)) {
+            System.out.println("ERROR :: 엔진은 1 ~ 4 범위만 선택 가능");
+            return false;
         }
-        if (currentStep == RunTest_Step) {
-            showRunTestMenu();
+        if (isInvalidBrake(answer)) {
+            System.out.println("ERROR :: 제동장치는 1 ~ 3 범위만 선택 가능");
+            return false;
+        }
+        if (isInvalidSteering(answer)) {
+            System.out.println("ERROR :: 조향장치는 1 ~ 2 범위만 선택 가능");
+            return false;
+        }
+        if (isInvalidRunTest(answer)) {
+            System.out.println("ERROR :: Run 또는 Test 중 하나를 선택 필요");
+            return false;
+        }
+        return true;
+    }
+
+    public static void runAssemble(int answer) {
+        if (answer == 0 && currentStep == RunTest_Step) {
+            currentStep = CarType_Step;
+            return;
+        }
+
+        if (answer == 0 && currentStep > CarType_Step) {
+            currentStep--;
+            return;
+        }
+
+        switch (currentStep) {
+            case CarType_Step:
+                selected[CarType_Step] = answer;
+                delay(800);
+                currentStep = Engine_Step;
+                break;
+            case Engine_Step:
+                selected[Engine_Step] = answer;
+                delay(800);
+                currentStep = Brake_Step;
+                break;
+            case Brake_Step:
+                selected[Brake_Step] = answer;
+                delay(800);
+                currentStep = Steering_Step;
+                break;
+            case Steering_Step:
+                selected[Steering_Step] = answer;
+                delay(800);
+                currentStep = RunTest_Step;
+                break;
+            case RunTest_Step:
+                if (answer == 1) {
+                    runCar();
+                    delay(2000);
+                }
+                if (answer == 2) {
+                    System.out.println("Test...");
+                    delay(1500);
+                    testCar();
+                    delay(2000);
+                }
+                break;
         }
     }
 
@@ -116,177 +203,32 @@ public class Assemble {
     }
 
 
-    private static String getInput(Scanner sc) {
-        System.out.print("INPUT > ");
-        String input = sc.nextLine().trim();
-        return input;
+    private static boolean isInvalidCarType(int answer) {
+        return currentStep == CarType_Step && !(answer >= 1 && answer <= 3);
     }
 
-    private static boolean isExit(String input) {
-        if (input.equalsIgnoreCase("exit")) {
-            System.out.println("바이바이");
-            return true;
-        }
-        return false;
+    private static boolean isInvalidEngine(int answer) {
+        return currentStep == Engine_Step && !(answer >= 0 && answer <= 4);
     }
 
-    private static Integer convertToAnswer(String input) {
-        int answer;
-        try {
-            answer = Integer.parseInt(input);
-        } catch (NumberFormatException e) {
-            System.out.println("ERROR :: 숫자만 입력 가능");
-            delay(800);
-            return null;
-        }
-        return answer;
+    private static boolean isInvalidBrake(int answer) {
+        return currentStep == Brake_Step && !(answer >= 0 && answer <= 3);
     }
 
-    private static void executeCarTypeSelection(Integer answer) {
-        if (!isValidCarType(answer)) return;
-
-        if (answer == 0) {
-            currentStep--;
-            return;
-        }
-
-        selectCarType(answer);
-        delay(800);
-        currentStep++;
+    private static boolean isInvalidSteering(int answer) {
+        return currentStep == Steering_Step && !(answer >= 0 && answer <= 2);
     }
 
-    private static boolean isValidCarType(Integer answer) {
-        if (answer < 1 || answer > 3) {
-            System.out.println("ERROR :: 차량 타입은 1 ~ 3 범위만 선택 가능");
-            delay(800);
-            return false;
-        }
-        return true;
+    private static boolean isInvalidRunTest(int answer) {
+        return currentStep == RunTest_Step && !(answer >= 0 && answer <= 2);
     }
 
-    private static void selectCarType(int answer) {
-        selectedTypes[CarType_Step] = answer;
-        System.out.printf("차량 타입으로 %s을 선택하셨습니다.\n", answer == 1 ? "Sedan" : answer == 2 ? "SUV" : "Truck");
-    }
-
-    private static void executeEngineSelection(Integer answer) {
-        if (!isValidEngine(answer)) return;
-
-        if (answer == 0) {
-            currentStep--;
-            return;
-        }
-
-        selectEngine(answer);
-        delay(800);
-        currentStep++;
-    }
-
-    private static boolean isValidEngine(Integer answer) {
-        if (answer < 0 || answer > 4) {
-            System.out.println("ERROR :: 엔진은 1 ~ 4 범위만 선택 가능");
-            delay(800);
-            return false;
-        }
-        return true;
-    }
-
-    private static void selectEngine(int answer) {
-        selectedTypes[Engine_Step] = answer;
-        String name = answer == 1 ? "GM" : answer == 2 ? "TOYOTA" : answer == 3 ? "WIA" : "고장난 엔진";
-        System.out.printf("%s 엔진을 선택하셨습니다.\n", name);
-    }
-
-    private static void executeBrakeSystemSelection(Integer answer) {
-        if (!isValidBrakeSystem(answer)) return;
-
-        if (answer == 0) {
-            currentStep--;
-            return;
-        }
-
-        selectBrakeSystem(answer);
-        delay(800);
-        currentStep++;
-    }
-
-    private static boolean isValidBrakeSystem(Integer answer) {
-        if (answer < 0 || answer > 3) {
-            System.out.println("ERROR :: 제동장치는 1 ~ 3 범위만 선택 가능");
-            delay(800);
-            return false;
-        }
-        return true;
-    }
-
-    private static void selectBrakeSystem(int answer) {
-        selectedTypes[BrakeSystem_Step] = answer;
-        String name = answer == 1 ? "MANDO" : answer == 2 ? "CONTINENTAL" : "BOSCH";
-        System.out.printf("%s 제동장치를 선택하셨습니다.\n", name);
-    }
-
-    private static void executeSteeringSystemSelection(Integer answer) {
-        if (!isValidSteeringSystem(answer)) return;
-
-        if (answer == 0) {
-            currentStep--;
-            return;
-        }
-
-        selectSteeringSystem(answer);
-        delay(800);
-        currentStep++;
-    }
-
-    private static boolean isValidSteeringSystem(Integer answer) {
-        if (answer < 0 || answer > 2) {
-            System.out.println("ERROR :: 조향장치는 1 ~ 2 범위만 선택 가능");
-            delay(800);
-            return false;
-        }
-        return true;
-    }
-
-    private static void selectSteeringSystem(int answer) {
-        selectedTypes[SteeringSystem_Step] = answer;
-        String name = answer == 1 ? "BOSCH" : "MOBIS";
-        System.out.printf("%s 조향장치를 선택하셨습니다.\n", name);
-    }
-    private static void executeRunTestSelection(Integer answer) {
-        if (!isValidRunTest(answer)) return;
-
-        if (answer == 0) {
-            currentStep = CarType_Step;
-            return;
-        }
-
-        if (answer == 1) {
-            runProducedCar();
-        }
-
-        if (answer == 2) {
-            System.out.println("Test...");
-            delay(1500);
-            testProducedCar();
-        }
-
-        delay(2000);
-    }
-    private static boolean isValidRunTest(Integer answer) {
-        if (answer < 0 || answer > 2) {
-            System.out.println("ERROR :: Run 또는 Test 중 하나를 선택 필요");
-            delay(800);
-            return false;
-        }
-        return true;
-    }
-
-    private static void runProducedCar() {
+    private static void runCar() {
         if (!isValidCombination()) {
             System.out.println("자동차가 동작되지 않습니다");
             return;
         }
-        if (isWrongEngine()) {
+        if (isBrokenEngine()) {
             System.out.println("엔진이 고장나있습니다.");
             System.out.println("자동차가 움직이지 않습니다.");
             return;
@@ -304,8 +246,8 @@ public class Assemble {
         return true;
     }
 
-    private static boolean isWrongEngine() {
-        return selectedTypes[Engine_Step] == 4;
+    private static boolean isBrokenEngine() {
+        return selected[Engine_Step] == BROKEN_ENGINE;
     }
 
     private static void printCarInfo() {
@@ -314,14 +256,14 @@ public class Assemble {
         String[] brakeSystemNames = {"", "Mando", "Continental", "Bosch"};
         String[] steeringSystemNames = {"", "Bosch", "Mobis"};
 
-        System.out.printf("Car Type : %s\n", carTypeNames[selectedTypes[CarType_Step]]);
-        System.out.printf("Engine   : %s\n", engineNames[selectedTypes[Engine_Step]]);
-        System.out.printf("Brake    : %s\n", brakeSystemNames[selectedTypes[BrakeSystem_Step]]);
-        System.out.printf("Steering : %s\n", steeringSystemNames[selectedTypes[SteeringSystem_Step]]);
+        System.out.printf("Car Type : %s\n", carTypeNames[selected[CarType_Step]]);
+        System.out.printf("Engine   : %s\n", engineNames[selected[Engine_Step]]);
+        System.out.printf("Brake    : %s\n", brakeSystemNames[selected[Brake_Step]]);
+        System.out.printf("Steering : %s\n", steeringSystemNames[selected[Steering_Step]]);
         System.out.println("자동차가 동작됩니다.");
     }
 
-    private static void testProducedCar() {
+    private static void testCar() {
         if (isSedanWithContinentalBrakeSystem()) fail("Sedan에는 Continental제동장치 사용 불가");
         else if (isSuvWithToyotaEngine()) fail("SUV에는 TOYOTA엔진 사용 불가");
         else if (isTruckWithWiaEngine()) fail("Truck에는 WIA엔진 사용 불가");
@@ -336,23 +278,23 @@ public class Assemble {
     }
 
     private static boolean isSedanWithContinentalBrakeSystem() {
-        return selectedTypes[CarType_Step] == SEDAN && selectedTypes[BrakeSystem_Step] == CONTINENTAL;
+        return selected[CarType_Step] == SEDAN && selected[Brake_Step] == CONTINENTAL;
     }
 
     private static boolean isSuvWithToyotaEngine() {
-        return selectedTypes[CarType_Step] == SUV && selectedTypes[Engine_Step] == TOYOTA;
+        return selected[CarType_Step] == SUV && selected[Engine_Step] == TOYOTA;
     }
 
     private static boolean isTruckWithWiaEngine() {
-        return selectedTypes[CarType_Step] == TRUCK && selectedTypes[Engine_Step] == WIA;
+        return selected[CarType_Step] == TRUCK && selected[Engine_Step] == WIA;
     }
 
     private static boolean isTruckWithMandoBrakeSystem() {
-        return selectedTypes[CarType_Step] == TRUCK && selectedTypes[BrakeSystem_Step] == MANDO;
+        return selected[CarType_Step] == TRUCK && selected[Brake_Step] == MANDO;
     }
 
     private static boolean isBoschBrakeSystemWithNonBoschSteeringSystem() {
-        return selectedTypes[BrakeSystem_Step] == BOSCH_B && selectedTypes[SteeringSystem_Step] != BOSCH_S;
+        return selected[Brake_Step] == BOSCH_B && selected[Steering_Step] != BOSCH_S;
     }
 
     private static void delay(int ms) {
