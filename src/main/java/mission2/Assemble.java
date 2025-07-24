@@ -1,14 +1,16 @@
 package mission2;
 
+import mission2.assemblestep.AssembleStepFactory;
+
 import java.util.Scanner;
 
-import static mission2.utils.CommonUtil.*;
+import static mission2.utils.CommonUtil.delay;
 
 public class Assemble {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        CarAssembler carAssembler = new CarAssembler(Car.getInstance());
+        CarAssembler carAssembler = new CarAssembler(new AssembleStepFactory(Car.getInstance()));
 
         while (true) {
             carAssembler.showMenu();
@@ -24,7 +26,7 @@ public class Assemble {
                 continue;
             }
 
-            carAssembler.runAssemble(answer);
+            carAssembler.runAssembleSteps(answer);
         }
 
         sc.close();
