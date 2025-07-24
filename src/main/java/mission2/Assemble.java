@@ -8,7 +8,7 @@ public class Assemble {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        CarAssembler carAssembler = new CarAssembler(new Car());
+        CarAssembler carAssembler = new CarAssembler(Car.getInstance());
 
         while (true) {
             carAssembler.showMenu();

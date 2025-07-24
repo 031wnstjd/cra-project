@@ -12,6 +12,18 @@ public class Car {
     private int brake;
     private int steering;
 
+    private static Car instance;
+
+    private Car() {}
+
+    public static Car getInstance() {
+        if (instance == null) {
+            instance = new Car();
+        }
+
+        return instance;
+    }
+
     public void selectCarType(int answer) {
         carType = answer;
         System.out.printf("차량 타입으로 %s을 선택하셨습니다.\n", answer == 1 ? "Sedan" : answer == 2 ? "SUV" : "Truck");
