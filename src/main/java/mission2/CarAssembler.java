@@ -1,7 +1,6 @@
 package mission2;
 
 import mission2.assemblestep.AssembleStep;
-import mission2.assemblestep.AssembleStepFactory;
 
 import static mission2.constant.AssembleStepConstant.CarType_Step;
 

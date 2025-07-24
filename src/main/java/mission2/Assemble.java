@@ -1,7 +1,5 @@
 package mission2;
 
-import mission2.assemblestep.AssembleStepFactory;
-
 import java.util.Scanner;
 
 import static mission2.utils.CommonUtil.delay;

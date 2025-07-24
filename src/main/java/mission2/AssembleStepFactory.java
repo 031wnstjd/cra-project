@@ -1,6 +1,6 @@
-package mission2.assemblestep;
+package mission2;
 
-import mission2.Car;
+import mission2.assemblestep.*;
 
 import static mission2.constant.AssembleStepConstant.*;
 
