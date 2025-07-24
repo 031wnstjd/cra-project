@@ -117,4 +117,39 @@ public class Car {
         return brake == BrakeConstant.BOSCH_B && steering != SteeringConstant.BOSCH_S;
     }
 
+    public int getCarType() {
+        return carType;
+    }
+
+    public int getEngine() {
+        return engine;
+    }
+
+    public int getBrake() {
+        return brake;
+    }
+
+    public int getSteering() {
+        return steering;
+    }
+
+    public void setCarType(int carType) {
+        this.carType = carType;
+    }
+
+    public void setEngine(int engine) {
+        this.engine = engine;
+    }
+
+    public void setBrake(int brake) {
+        this.brake = brake;
+    }
+
+    public void setSteering(int steering) {
+        this.steering = steering;
+    }
+
+    public static void setInstance(Car instance) {
+        Car.instance = instance;
+    }
 }
